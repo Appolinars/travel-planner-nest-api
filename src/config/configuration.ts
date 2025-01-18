@@ -1,4 +1,5 @@
 export default () => ({
   PORT: process.env.PORT || 5000,
-  TEST: '123',
+  JWT_ACCESS_EXPIRATION_TIME_MS: 3600000,
+  JWT_REFRESH_EXPIRATION_TIME_MS: 604800000,
 });

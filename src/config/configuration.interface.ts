@@ -1,4 +1,15 @@
 export interface IAppConfig {
+  NODE_ENV: string;
   PORT: number;
-  TEST: string;
+  PG_DB_HOST: string;
+  PG_DB_PORT: string;
+  PG_DB_DATABASE: string;
+  PG_DB_USERNAME: string;
+  PG_DB_PASSWORD: string;
+  MONGO_URI: string;
+  MONGO_DB_NAME: string;
+  JWT_ACCESS_SECRET: string;
+  JWT_ACCESS_EXPIRATION_TIME_MS: number;
+  JWT_REFRESH_SECRET: string;
+  JWT_REFRESH_EXPIRATION_TIME_MS: number;
 }

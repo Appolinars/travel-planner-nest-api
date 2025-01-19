@@ -67,10 +67,7 @@ export class AuthService {
       )}ms`,
     });
 
-    // await this.usersService.updateUser(
-    //   { _id: user._id },
-    //   { $set: { refreshToken: await hash(refreshToken, 10) } },
-    // );
+    // create refresh token for user
 
     response.cookie('Authentication', accessToken, {
       httpOnly: true,

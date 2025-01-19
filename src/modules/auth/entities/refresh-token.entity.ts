@@ -16,11 +16,11 @@ export class RefreshToken {
   user: User;
 
   @Column({ type: 'varchar' })
-  refreshToken: string;
+  refresh_token: string;
 
   @Column({ type: 'timestamp' })
-  expiresAt: Date;
+  expires_at: Date;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 }

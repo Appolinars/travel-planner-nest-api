@@ -5,9 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
 import config from './config/configuration';
 import { IAppConfig } from './config/configuration.interface';
+import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -28,6 +28,7 @@ import { UsersModule } from './modules/users/users.module';
         synchronize: false,
         autoLoadEntities: true,
         logging: true,
+        useUTC: true,
       }),
       inject: [ConfigService],
     }),

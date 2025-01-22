@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { IAppConfig } from 'src/config/configuration.interface';
 
 import { UsersService } from '../../users/users.service';
-import { ITokenPayload } from '../types/token-payload.interface';
+import { IAccessTokenPayload } from '../types/token-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,13 +16,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => request.cookies?.Authentication,
+        (request: Request) => request.cookies?.access_token,
       ]),
       secretOrKey: configService.getOrThrow('JWT_ACCESS_SECRET'),
     });
   }
 
-  async validate(payload: ITokenPayload) {
+  async validate(payload: IAccessTokenPayload) {
     return this.usersService.findOne(payload.userId);
   }
 }

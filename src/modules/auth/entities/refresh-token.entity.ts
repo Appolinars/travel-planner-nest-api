@@ -15,6 +15,9 @@ export class RefreshToken {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 
+  @Column({ type: 'varchar', unique: true })
+  token_id: string;
+
   @Column({ type: 'varchar' })
   refresh_token: string;
 

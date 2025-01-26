@@ -34,11 +34,18 @@ export class AuthService {
 
   async verifyUserLogin(email: string, password: string) {
     try {
-      const user = await this.usersService.findOne({ email });
-      const authenticated = await compare(password, user.password);
+      const user: User = await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.email = :email', { email })
+        .select()
+        .addSelect('user.password')
+        .getOne();
+
+      const authenticated = await compare(password, user?.password);
       if (!authenticated) {
         throw new UnauthorizedException();
       }
+      delete user.password;
       return user;
     } catch {
       throw new UnauthorizedException('Credentials are not valid.');

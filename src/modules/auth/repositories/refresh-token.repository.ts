@@ -26,12 +26,6 @@ export class RefreshTokenRepository {
     });
     return this.refreshTokenRepository.save(refreshToken);
   }
-  async findToken(token: string) {
-    return this.refreshTokenRepository.findOne({
-      where: { refresh_token: token },
-      relations: ['user'],
-    });
-  }
 
   async findTokenByTokenId(tokenId: string) {
     return this.refreshTokenRepository.findOne({

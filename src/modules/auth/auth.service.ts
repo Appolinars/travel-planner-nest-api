@@ -34,7 +34,7 @@ export class AuthService {
 
   async verifyUserLogin(email: string, password: string) {
     try {
-      const user = await this.usersService.findByEmail(email);
+      const user = await this.usersService.findOne({ email });
       const authenticated = await compare(password, user.password);
       if (!authenticated) {
         throw new UnauthorizedException();
@@ -72,7 +72,7 @@ export class AuthService {
 
   async googleLogin(googleUser: GoogleUserDto, response: Response) {
     try {
-      const user = await this.usersService.findByEmail(googleUser.email);
+      const user = await this.usersService.findOne({ email: googleUser.email });
 
       if (user) {
         return this.login(user, response);

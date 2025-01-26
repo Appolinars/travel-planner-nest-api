@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -41,12 +41,8 @@ export class UsersService {
     return users;
   }
 
-  findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
-  }
-
-  findByEmail(email: string) {
-    return this.userRepository.findOneBy({ email });
+  findOne(payload: FindOptionsWhere<User>) {
+    return this.userRepository.findOneBy(payload);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

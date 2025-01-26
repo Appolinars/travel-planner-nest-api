@@ -5,13 +5,17 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcryptjs';
 import { Response } from 'express';
 import { IAppConfig } from 'src/config/configuration.interface';
 import { User } from 'src/modules/users/entities/user.entity';
 import { UsersService } from 'src/modules/users/users.service';
+import { EAuthProvider } from 'src/shared/types/auth.types';
+import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
+import { GoogleUserDto } from './dto/google-auth.dto';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 import {
   IAccessTokenPayload,
@@ -25,9 +29,10 @@ export class AuthService {
     private readonly configService: ConfigService<IAppConfig>,
     private readonly jwtService: JwtService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async verifyUser(email: string, password: string) {
+  async verifyUserLogin(email: string, password: string) {
     try {
       const user = await this.usersService.findByEmail(email);
       const authenticated = await compare(password, user.password);
@@ -60,6 +65,26 @@ export class AuthService {
       });
 
       return user;
+    } catch {
+      throw new BadRequestException();
+    }
+  }
+
+  async googleLogin(googleUser: GoogleUserDto, response: Response) {
+    try {
+      const user = await this.usersService.findByEmail(googleUser.email);
+
+      if (user) {
+        return this.login(user, response);
+      }
+
+      const newUser = await this.userRepository.save({
+        username: googleUser.displayName,
+        email: googleUser.email,
+        provider: EAuthProvider.GOOGLE,
+      });
+
+      return this.login(newUser, response);
     } catch {
       throw new BadRequestException();
     }

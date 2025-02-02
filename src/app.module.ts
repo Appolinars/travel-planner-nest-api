@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import config from './config/configuration';
 import { IAppConfig } from './config/configuration.interface';
 import { AuthModule } from './modules/auth/auth.module';
+import { ItinerariesModule } from './modules/itineraries/itineraries.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -42,6 +43,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     UsersModule,
     AuthModule,
+    ItinerariesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

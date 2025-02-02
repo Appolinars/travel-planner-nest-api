@@ -19,8 +19,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     UsersModule,
     PassportModule,
     JwtModule,
-    TypeOrmModule.forFeature([RefreshToken]),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([RefreshToken, User]),
   ],
   controllers: [AuthController],
   providers: [

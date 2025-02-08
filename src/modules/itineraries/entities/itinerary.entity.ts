@@ -1,13 +1,15 @@
-import { User } from 'src/modules/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { Activity } from './activity.entity';
+import { Expense } from './expense.entity';
+import { UserToItinerary } from './user-to-itinerary.entity';
 
 @Entity('itineraries')
 export class Itinerary {
@@ -21,21 +23,32 @@ export class Itinerary {
   description?: string;
 
   @Column({ type: 'timestamp' })
-  startDate: Date;
+  start_date: Date;
 
   @Column({ type: 'timestamp' })
-  endDate: Date;
+  end_date: Date;
 
   @Column({ type: 'varchar', array: true })
   destinations: string[];
 
-  @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'ownerId' })
-  owner: User;
+  @OneToMany(() => UserToItinerary, (member) => member.itinerary, {
+    cascade: true,
+  })
+  members: UserToItinerary[];
+
+  @OneToMany(() => Activity, (activity) => activity.itinerary, {
+    cascade: true,
+  })
+  activites: Activity[];
+
+  @OneToMany(() => Expense, (expense) => expense.itinerary, {
+    cascade: true,
+  })
+  expenses: Expense[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

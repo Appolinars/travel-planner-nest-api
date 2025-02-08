@@ -3,7 +3,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -26,13 +25,14 @@ export class Expense {
   @Column({ type: 'varchar', length: 1000, nullable: true })
   notes?: string;
 
-  @ManyToOne(() => Itinerary, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'itineraryId' })
+  @ManyToOne(() => Itinerary, (itinerary) => itinerary.expenses, {
+    onDelete: 'CASCADE',
+  })
   itinerary: Itinerary;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

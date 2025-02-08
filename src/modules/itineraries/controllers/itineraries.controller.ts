@@ -8,9 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { CreateItineraryDto } from './dto/create-itinerary.dto';
-import { UpdateItineraryDto } from './dto/update-itinerary.dto';
-import { ItinerariesService } from './itineraries.service';
+import { CreateItineraryDto } from '../dto/create-itinerary.dto';
+import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
+import { ItinerariesService } from '../services/itineraries.service';
 
 @Controller('itineraries')
 export class ItinerariesController {

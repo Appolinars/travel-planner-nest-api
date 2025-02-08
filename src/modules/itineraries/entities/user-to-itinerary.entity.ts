@@ -14,16 +14,16 @@ import {
 import { EItineraryUserRole } from '../types/itineraries.types';
 
 @Entity('users_to_itinerary')
-@Unique(['userId', 'itineraryId']) // Ensures one record per user + itinerary
+@Unique(['user_id', 'itinerary_id']) // Ensures one record per user + itinerary
 export class UserToItinerary {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column({ type: 'integer' })
-  userId: number;
+  user_id: number;
 
   @Column({ type: 'integer' })
-  itineraryId: number;
+  itinerary_id: number;
 
   @Column({
     type: 'enum',
@@ -33,16 +33,18 @@ export class UserToItinerary {
   role: EItineraryUserRole;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Itinerary, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'itineraryId' })
+  @ManyToOne(() => Itinerary, (itinerary) => itinerary.members, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'itinerary_id' })
   itinerary: Itinerary;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

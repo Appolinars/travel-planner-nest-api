@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { ItinerariesService } from '../services/itineraries.service';
 import { ItinerariesController } from './itineraries.controller';
-import { ItinerariesService } from './itineraries.service';
 
 describe('ItinerariesController', () => {
   let controller: ItinerariesController;

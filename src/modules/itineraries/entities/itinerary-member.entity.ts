@@ -13,9 +13,9 @@ import {
 
 import { EItineraryUserRole } from '../types/itineraries.types';
 
-@Entity('users_to_itinerary')
+@Entity('itinerary_members')
 @Unique(['user_id', 'itinerary_id']) // Ensures one record per user + itinerary
-export class UserToItinerary {
+export class ItineraryMember {
   @PrimaryGeneratedColumn('increment')
   id: number;
 

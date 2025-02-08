@@ -5,7 +5,6 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -39,7 +38,4 @@ export class CreateItineraryDto {
   @ArrayMaxSize(50)
   @ArrayUnique((option) => option)
   destinations: string[];
-
-  @IsNumber()
-  ownerId: number;
 }

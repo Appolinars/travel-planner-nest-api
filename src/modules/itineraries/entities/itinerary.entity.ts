@@ -9,7 +9,7 @@ import {
 
 import { Activity } from './activity.entity';
 import { Expense } from './expense.entity';
-import { UserToItinerary } from './user-to-itinerary.entity';
+import { ItineraryMember } from './itinerary-member.entity';
 
 @Entity('itineraries')
 export class Itinerary {
@@ -31,10 +31,10 @@ export class Itinerary {
   @Column({ type: 'varchar', array: true })
   destinations: string[];
 
-  @OneToMany(() => UserToItinerary, (member) => member.itinerary, {
+  @OneToMany(() => ItineraryMember, (member) => member.itinerary, {
     cascade: true,
   })
-  members: UserToItinerary[];
+  members: ItineraryMember[];
 
   @OneToMany(() => Activity, (activity) => activity.itinerary, {
     cascade: true,

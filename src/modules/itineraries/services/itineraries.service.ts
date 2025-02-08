@@ -12,8 +12,9 @@ export class ItinerariesService {
     @InjectRepository(Itinerary)
     private readonly itineraryRepository: Repository<Itinerary>,
   ) {}
-  create(createItineraryDto: CreateItineraryDto) {
-    return this.itineraryRepository.save(createItineraryDto);
+  async create(createItineraryDto: CreateItineraryDto) {
+    const itinerary = await this.itineraryRepository.save(createItineraryDto);
+    return itinerary;
   }
 
   async findAll() {

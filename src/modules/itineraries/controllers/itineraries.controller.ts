@@ -6,7 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from 'src/modules/auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { User } from 'src/modules/users/entities/user.entity';
 
 import { CreateItineraryDto } from '../dto/create-itinerary.dto';
 import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
@@ -17,8 +21,12 @@ export class ItinerariesController {
   constructor(private readonly itinerariesService: ItinerariesService) {}
 
   @Post()
-  create(@Body() createItineraryDto: CreateItineraryDto) {
-    return this.itinerariesService.create(createItineraryDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @CurrentUser() user: User,
+    @Body() createItineraryDto: CreateItineraryDto,
+  ) {
+    return this.itinerariesService.create(createItineraryDto, user);
   }
 
   @Get()
@@ -32,6 +40,7 @@ export class ItinerariesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateItineraryDto: UpdateItineraryDto,
@@ -40,6 +49,7 @@ export class ItinerariesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.itinerariesService.remove(+id);
   }

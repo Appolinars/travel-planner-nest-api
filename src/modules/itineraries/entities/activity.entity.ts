@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -25,12 +26,13 @@ export class Activity {
   @Column({ type: 'varchar', length: 200 })
   location: string;
 
-  @Column({ type: 'varchar', length: 1000, nullable: true })
-  notes?: string;
+  @Column({ type: 'integer' })
+  itinerary_id: number;
 
   @ManyToOne(() => Itinerary, (itinerary) => itinerary.activites, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'itinerary_id' })
   itinerary: Itinerary;
 
   @CreateDateColumn()

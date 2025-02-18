@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
-import { EItineraryUserRole } from '../types/itineraries.types';
+import { EItineraryMemberRole } from '../types/itineraries.types';
 
 export class CreateItineraryMemberDto {
   @IsNotEmpty()
@@ -12,6 +12,6 @@ export class CreateItineraryMemberDto {
   itinerary_id: number;
 
   @IsOptional()
-  @IsEnum(EItineraryUserRole)
-  role?: EItineraryUserRole;
+  @IsEnum(EItineraryMemberRole)
+  role?: EItineraryMemberRole;
 }

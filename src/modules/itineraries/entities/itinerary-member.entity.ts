@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { EItineraryUserRole } from '../types/itineraries.types';
+import { EItineraryMemberRole } from '../types/itineraries.types';
 
 @Entity('itinerary_members')
 @Unique(['user_id', 'itinerary_id']) // Ensures one record per user + itinerary
@@ -27,10 +27,10 @@ export class ItineraryMember {
 
   @Column({
     type: 'enum',
-    enum: EItineraryUserRole,
-    default: EItineraryUserRole.MEMBER,
+    enum: EItineraryMemberRole,
+    default: EItineraryMemberRole.MEMBER,
   })
-  role: EItineraryUserRole;
+  role: EItineraryMemberRole;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

@@ -12,7 +12,7 @@ import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
 import { Itinerary } from '../entities/itinerary.entity';
 import { ItineraryMember } from '../entities/itinerary-member.entity';
 import {
-  EItineraryUserRole,
+  EItineraryMemberRole,
   IItineraryResponse,
 } from '../types/itineraries.types';
 
@@ -38,7 +38,7 @@ export class ItinerariesService {
       const itineraryOwner = await queryRunner.manager.save(ItineraryMember, {
         itinerary_id: itinerary.id,
         user_id: user.id,
-        role: EItineraryUserRole.OWNER,
+        role: EItineraryMemberRole.OWNER,
       });
 
       const itineraryOwnerWithUser = await queryRunner.manager.findOne(
@@ -64,7 +64,7 @@ export class ItinerariesService {
     const itineraries = await this.itineraryRepository
       .createQueryBuilder('itinerary')
       .leftJoinAndSelect('itinerary.members', 'member', 'member.role = :role', {
-        role: EItineraryUserRole.OWNER,
+        role: EItineraryMemberRole.OWNER,
       })
       .leftJoinAndSelect('member.user', 'user')
       .getMany();
@@ -85,7 +85,7 @@ export class ItinerariesService {
     const itinerary = await this.itineraryRepository
       .createQueryBuilder('itinerary')
       .leftJoinAndSelect('itinerary.members', 'member', 'member.role = :role', {
-        role: EItineraryUserRole.OWNER,
+        role: EItineraryMemberRole.OWNER,
       })
       .leftJoinAndSelect('member.user', 'user')
       .where('itinerary.id = :id', { id })

@@ -21,7 +21,6 @@ export class ItinerariesService {
   constructor(
     @InjectRepository(Itinerary)
     private readonly itineraryRepository: Repository<Itinerary>,
-    @InjectRepository(ItineraryMember)
     private dataSource: DataSource,
   ) {}
 
@@ -93,7 +92,7 @@ export class ItinerariesService {
       .getOne();
 
     if (!itinerary) {
-      new NotFoundException('Itinerary not found');
+      throw new NotFoundException('Itinerary not found');
     }
 
     const owner = itinerary.members[0];

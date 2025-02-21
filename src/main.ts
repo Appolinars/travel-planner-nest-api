@@ -1,5 +1,6 @@
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ValidationError } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from './app.module';
@@ -13,6 +14,11 @@ async function bootstrap() {
       stopAtFirstError: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (errors: ValidationError[]) => {
+        return new BadRequestException(
+          errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+        );
+      },
     }),
   );
   await app.listen(process.env.PORT ?? 5000);

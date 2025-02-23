@@ -34,7 +34,7 @@ export class Expense {
   @Column({ type: 'varchar', length: 1000, nullable: true })
   notes?: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', select: false })
   itinerary_id: number;
 
   @ManyToOne(() => Itinerary, (itinerary) => itinerary.expenses, {
@@ -43,9 +43,9 @@ export class Expense {
   @JoinColumn({ name: 'itinerary_id' })
   itinerary: Itinerary;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at: Date;
 }

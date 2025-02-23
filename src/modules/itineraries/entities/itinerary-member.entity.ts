@@ -22,7 +22,7 @@ export class ItineraryMember {
   @Column({ type: 'integer' })
   user_id: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', select: false })
   itinerary_id: number;
 
   @Column({
@@ -42,9 +42,9 @@ export class ItineraryMember {
   @JoinColumn({ name: 'itinerary_id' })
   itinerary: Itinerary;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at: Date;
 }

@@ -26,7 +26,7 @@ export class Activity {
   @Column({ type: 'varchar', length: 200 })
   location: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', select: false })
   itinerary_id: number;
 
   @ManyToOne(() => Itinerary, (itinerary) => itinerary.activites, {
@@ -35,9 +35,9 @@ export class Activity {
   @JoinColumn({ name: 'itinerary_id' })
   itinerary: Itinerary;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at: Date;
 }

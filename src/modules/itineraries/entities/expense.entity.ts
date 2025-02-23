@@ -17,7 +17,15 @@ export class Expense {
   @Column({ type: 'varchar', length: 200 })
   title: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 18,
+    scale: 6,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   amount: number;
 
   @Column({ type: 'varchar', length: 10 })

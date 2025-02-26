@@ -12,18 +12,71 @@ export class ActivitiesService {
     private readonly activitiesRepository: Repository<Activity>,
   ) {}
 
-  create(payload: CreateActivityDto) {
-    return this.activitiesRepository.save(payload);
+  async create(payload: CreateActivityDto) {
+    const query = `
+      INSERT INTO activities (itinerary_id, title, description, date, location)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, title, description, date, location
+    `;
+
+    const values = [
+      payload.itinerary_id,
+      payload.title,
+      payload.description || null,
+      payload.date,
+      payload.location,
+    ];
+
+    const result: Activity[] = await this.activitiesRepository.query(
+      query,
+      values,
+    );
+    return result[0];
   }
 
-  findByItineraryId(itinerary_id: number) {
-    return this.activitiesRepository.find({
-      where: { itinerary_id },
-    });
+  async findByItineraryId(itinerary_id: number) {
+    const query = `
+      SELECT id, title, description, date, location
+      FROM activities
+      WHERE itinerary_id = $1
+    `;
+
+    const result: Activity = await this.activitiesRepository.query(query, [
+      itinerary_id,
+    ]);
+    return result;
   }
 
   async remove(id: string) {
-    await this.activitiesRepository.delete(id);
+    const query = `
+      DELETE FROM activities
+      WHERE id = $1
+    `;
+
+    await this.activitiesRepository.query(query, [id]);
     return { success: true };
   }
 }
+
+// @Injectable()
+// export class ActivitiesService {
+//   constructor(
+//     @InjectRepository(Activity)
+//     private readonly activitiesRepository: Repository<Activity>,
+//   ) {}
+
+//   create(payload: CreateActivityDto) {
+//     return this.activitiesRepository.save(payload);
+//   }
+
+//   findByItineraryId(itinerary_id: number) {
+//     return this.activitiesRepository.find({
+//       where: { itinerary_id },
+//     });
+//   }
+
+//   async remove(id: string) {
+//     await this.activitiesRepository.delete(id);
+//     return { success: true };
+//   }
+// }

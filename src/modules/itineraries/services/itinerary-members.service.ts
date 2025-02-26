@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CreateItineraryMemberDto } from '../dto/create-itinerary-member.dto';
 import { ItineraryMember } from '../entities/itinerary-member.entity';
+import { EItineraryMemberRole } from '../types/itineraries.types';
 
 @Injectable()
 export class ItineraryMembersService {
@@ -12,37 +13,118 @@ export class ItineraryMembersService {
     private readonly membersRepository: Repository<ItineraryMember>,
   ) {}
 
-  async create({ user_id, itinerary_id }: CreateItineraryMemberDto) {
-    const memberExists = await this.membersRepository.findOne({
-      where: {
-        user_id,
-        itinerary_id,
-      },
-    });
+  async create({ user_id, itinerary_id, role }: CreateItineraryMemberDto) {
+    const existsQuery = `
+      SELECT id
+      FROM itinerary_members
+      WHERE user_id = $1 AND itinerary_id = $2
+      LIMIT 1
+    `;
+    const existsResult = await this.membersRepository.query(existsQuery, [
+      user_id,
+      itinerary_id,
+    ]);
 
-    if (memberExists) {
+    if (existsResult.length > 0) {
       throw new BadRequestException('Member already exists');
     }
 
-    const member = await this.membersRepository.save({ user_id, itinerary_id });
+    const insertQuery = `
+      INSERT INTO itinerary_members (user_id, itinerary_id, role)
+      VALUES ($1, $2, $3)
+      RETURNING id, user_id, role
+    `;
+    const insertValues = [
+      user_id,
+      itinerary_id,
+      role || EItineraryMemberRole.MEMBER,
+    ];
+    const insertResult = await this.membersRepository.query(
+      insertQuery,
+      insertValues,
+    );
+    const newMember = insertResult[0];
 
-    const fullMember = await this.membersRepository.findOne({
-      where: { id: member.id },
-      relations: ['user'],
-    });
+    const selectQuery = `
+      SELECT 
+        im.id,
+        im.user_id,
+        im.role
+      FROM itinerary_members im
+      LEFT JOIN users u ON u.id = im.user_id
+      WHERE im.id = $1
+    `;
+    const fullMemberResult = await this.membersRepository.query(selectQuery, [
+      newMember.id,
+    ]);
 
-    return fullMember;
+    return fullMemberResult[0];
   }
 
   async remove(id: number) {
-    await this.membersRepository.delete(id);
+    const query = `
+      DELETE FROM itinerary_members
+      WHERE id = $1
+    `;
+
+    await this.membersRepository.query(query, [id]);
     return { success: true };
   }
 
   async findByItineraryId(itinerary_id: number) {
-    return this.membersRepository.find({
-      where: { itinerary_id },
-      relations: ['user'],
-    });
+    const query = `
+      SELECT 
+        im.id,
+        im.user_id,
+        im.role
+      FROM itinerary_members im
+      LEFT JOIN users u ON u.id = im.user_id
+      WHERE im.itinerary_id = $1
+    `;
+
+    const result = await this.membersRepository.query(query, [itinerary_id]);
+    return result;
   }
 }
+
+// @Injectable()
+// export class ItineraryMembersService {
+//   constructor(
+//     @InjectRepository(ItineraryMember)
+//     private readonly membersRepository: Repository<ItineraryMember>,
+//   ) {}
+
+//   async create({ user_id, itinerary_id }: CreateItineraryMemberDto) {
+//     const memberExists = await this.membersRepository.findOne({
+//       where: {
+//         user_id,
+//         itinerary_id,
+//       },
+//     });
+
+//     if (memberExists) {
+//       throw new BadRequestException('Member already exists');
+//     }
+
+//     const member = await this.membersRepository.save({ user_id, itinerary_id });
+
+//     const fullMember = await this.membersRepository.findOne({
+//       where: { id: member.id },
+//       relations: ['user'],
+//     });
+
+//     return fullMember;
+//   }
+
+//   async remove(id: number) {
+//     await this.membersRepository.delete(id);
+//     return { success: true };
+//   }
+
+//   async findByItineraryId(itinerary_id: number) {
+//     return this.membersRepository.find({
+//       where: { itinerary_id },
+//       relations: ['user'],
+//     });
+//   }
+// }

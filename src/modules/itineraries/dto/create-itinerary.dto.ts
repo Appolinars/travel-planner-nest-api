@@ -26,11 +26,11 @@ export class CreateItineraryDto {
 
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  start_date: Date;
 
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  end_date: Date;
 
   @IsArray()
   @IsString({ each: true })

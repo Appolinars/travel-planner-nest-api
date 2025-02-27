@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CreateItineraryMemberDto } from '../dto/create-itinerary-member.dto';
 import { ItineraryMember } from '../entities/itinerary-member.entity';
-import { EItineraryMemberRole } from '../types/itineraries.types';
+import { EItineraryMemberRole, IRawMember } from '../types/itineraries.types';
 
 @Injectable()
 export class ItineraryMembersService {
@@ -49,7 +49,11 @@ export class ItineraryMembersService {
       SELECT 
         im.id,
         im.user_id,
-        im.role
+        im.role,
+        u.id AS user_id,
+        u.username AS user_username,
+        u.email AS user_email,
+        u.avatar AS user_avatar
       FROM itinerary_members im
       LEFT JOIN users u ON u.id = im.user_id
       WHERE im.id = $1
@@ -58,7 +62,7 @@ export class ItineraryMembersService {
       newMember.id,
     ]);
 
-    return fullMemberResult[0];
+    return this.transformMember(fullMemberResult[0]);
   }
 
   async remove(id: number) {
@@ -73,17 +77,36 @@ export class ItineraryMembersService {
 
   async findByItineraryId(itinerary_id: number) {
     const query = `
-      SELECT 
-        im.id,
-        im.user_id,
-        im.role
-      FROM itinerary_members im
-      LEFT JOIN users u ON u.id = im.user_id
-      WHERE im.itinerary_id = $1
-    `;
+    SELECT 
+      im.id,
+      im.user_id,
+      im.role,
+      u.id AS user_id,
+      u.username AS user_username,
+      u.email AS user_email,
+      u.avatar AS user_avatar
+    FROM itinerary_members im
+    LEFT JOIN users u ON u.id = im.user_id
+    WHERE im.itinerary_id = $1
+  `;
 
-    const result = await this.membersRepository.query(query, [itinerary_id]);
-    return result;
+    const result: IRawMember[] = await this.membersRepository.query(query, [
+      itinerary_id,
+    ]);
+    return result.map((row) => this.transformMember(row));
+  }
+
+  private transformMember(member: IRawMember) {
+    return {
+      id: member.id,
+      user_id: member.user_id,
+      role: member.role,
+      user: {
+        username: member.user_username,
+        email: member.user_email,
+        avatar: member.user_avatar,
+      },
+    };
   }
 }
 

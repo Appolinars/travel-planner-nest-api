@@ -9,3 +9,12 @@ export enum EItineraryMemberRole {
 export interface IItineraryResponse extends Itinerary {
   owner: ItineraryMember;
 }
+
+export interface IRawMember {
+  id: number;
+  user_id: number;
+  role: string | number;
+  user_username?: string;
+  user_email?: string;
+  user_avatar?: string | null;
+}

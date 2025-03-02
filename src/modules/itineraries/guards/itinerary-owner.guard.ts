@@ -14,7 +14,7 @@ export class ItineraryOwnerGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Assuming JWT guard sets the user in request
+    const user = request?.user;
 
     const itineraryId = this.getItineraryIdFromRequest(request);
 
@@ -22,7 +22,6 @@ export class ItineraryOwnerGuard implements CanActivate {
       throw new ForbiddenException('Unauthorized access');
     }
 
-    // Check if user is the owner of the itinerary
     const memberRole = await this.itineraryMembersService.getMemberRole({
       user_id: user.id,
       itinerary_id: itineraryId,
@@ -40,6 +39,10 @@ export class ItineraryOwnerGuard implements CanActivate {
   private getItineraryIdFromRequest(request: any): number | null {
     if (request.body && request.body.itinerary_id) {
       return parseInt(request.body.itinerary_id, 10);
+    }
+
+    if (request.params && request.params.itineraryId) {
+      return parseInt(request.params.itineraryId, 10);
     }
 
     return null;

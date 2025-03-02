@@ -14,6 +14,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 
 import { CreateItineraryDto } from '../dto/create-itinerary.dto';
 import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
+import { ItineraryOwnerGuard } from '../guards/itinerary-owner.guard';
 import { ItinerariesService } from '../services/itineraries.service';
 
 @Controller('itineraries')
@@ -34,23 +35,23 @@ export class ItinerariesController {
     return this.itinerariesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itinerariesService.findOne(+id);
+  @Get(':itineraryId')
+  findOne(@Param('itineraryId') itineraryId: string) {
+    return this.itinerariesService.findOne(+itineraryId);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Patch(':itineraryId')
+  @UseGuards(JwtAuthGuard, ItineraryOwnerGuard)
   update(
-    @Param('id') id: string,
+    @Param('itineraryId') itineraryId: string,
     @Body() updateItineraryDto: UpdateItineraryDto,
   ) {
-    return this.itinerariesService.update(+id, updateItineraryDto);
+    return this.itinerariesService.update(+itineraryId, updateItineraryDto);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.itinerariesService.remove(+id);
+  @Delete(':itineraryId')
+  @UseGuards(JwtAuthGuard, ItineraryOwnerGuard)
+  remove(@Param('itineraryId') itineraryId: string) {
+    return this.itinerariesService.remove(+itineraryId);
   }
 }

@@ -100,7 +100,7 @@ export class ItineraryMembersService {
     return {
       id: member.id,
       user_id: member.user_id,
-      role: member.role,
+      role: Number(member.role),
       user: {
         username: member.user_username,
         email: member.user_email,

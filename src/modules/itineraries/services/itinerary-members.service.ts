@@ -96,6 +96,29 @@ export class ItineraryMembersService {
     return result.map((row) => this.transformMember(row));
   }
 
+  async getMemberRole({
+    user_id,
+    itinerary_id,
+  }: {
+    user_id: number;
+    itinerary_id: number;
+  }) {
+    const query = `
+      SELECT 
+        im.role
+      FROM itinerary_members im
+      WHERE user_id = $1 AND itinerary_id = $2
+      LIMIT 1
+    `;
+
+    const result = await this.membersRepository.query(query, [
+      user_id,
+      itinerary_id,
+    ]);
+
+    return Number(result[0]?.role);
+  }
+
   private transformMember(member: IRawMember) {
     return {
       id: member.id,

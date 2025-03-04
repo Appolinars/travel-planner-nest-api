@@ -1,13 +1,27 @@
-import { Itinerary } from '../entities/itinerary.entity';
-import { ItineraryMember } from '../entities/itinerary-member.entity';
-
 export enum EItineraryMemberRole {
   OWNER = 1,
   MEMBER = 2,
 }
 
-export interface IItineraryResponse extends Itinerary {
-  owner: ItineraryMember;
+export interface IItineraryResponseOwner {
+  id: number;
+  user_id: number;
+  role: EItineraryMemberRole;
+  user: {
+    username: string;
+    email: string;
+    avatar: string | null;
+  };
+}
+
+export interface IItineraryResponse {
+  id: number;
+  title: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+  destinations: string[];
+  owner: IItineraryResponseOwner;
 }
 
 export interface IRawMember {

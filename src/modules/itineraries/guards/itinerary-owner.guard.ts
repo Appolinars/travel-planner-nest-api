@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 
 import { ItineraryMembersService } from '../services/itinerary-members.service';
@@ -27,7 +28,11 @@ export class ItineraryOwnerGuard implements CanActivate {
       itinerary_id: itineraryId,
     });
 
-    if (!memberRole || memberRole !== EItineraryMemberRole.OWNER) {
+    if (!memberRole) {
+      throw new NotFoundException('Itinerary not found');
+    }
+
+    if (memberRole !== EItineraryMemberRole.OWNER) {
       throw new ForbiddenException(
         'Only itinerary owners can perform this action',
       );

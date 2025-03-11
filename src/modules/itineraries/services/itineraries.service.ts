@@ -124,7 +124,7 @@ export class ItinerariesService {
   async findAll(
     searchDto: SearchItinerariesDto,
   ): Promise<IItineraryResponse[]> {
-    const { query, sortField, sortOrder } = searchDto;
+    const { query, sortField, sortOrder, destination } = searchDto;
 
     const orderByQuery = this.constructSortingQuery(sortField, sortOrder);
 
@@ -143,10 +143,20 @@ export class ItinerariesService {
     `;
 
     const params: (string | number)[] = [EItineraryMemberRole.OWNER];
+    const whereClauses: string[] = [];
 
     if (query) {
-      sqlQuery += ` WHERE i.title ILIKE $2`;
+      whereClauses.push(`i.title ILIKE $${params.length + 1}`);
       params.push(`%${query}%`);
+    }
+
+    if (destination) {
+      whereClauses.push(`$${params.length + 1} = ANY(i.destinations)`);
+      params.push(destination);
+    }
+
+    if (whereClauses.length > 0) {
+      sqlQuery += ` WHERE ${whereClauses.join(' AND ')}`;
     }
 
     sqlQuery += ` ${orderByQuery}`;

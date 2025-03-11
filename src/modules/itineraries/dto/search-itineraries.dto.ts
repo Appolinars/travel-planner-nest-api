@@ -20,4 +20,8 @@ export class SearchItinerariesDto {
   @IsOptional()
   @IsEnum(ESortOrder)
   sortOrder?: ESortOrder;
+
+  @IsOptional()
+  @IsString()
+  destination?: string;
 }

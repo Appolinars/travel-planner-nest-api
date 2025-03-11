@@ -19,6 +19,8 @@ export interface IItineraryResponse {
   title: string;
   start_date: string;
   end_date: string;
+  created_at: string;
+  updated_at: string;
   description: string;
   destinations: string[];
   owner: IItineraryResponseOwner;

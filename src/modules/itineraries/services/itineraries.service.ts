@@ -7,22 +7,28 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 
 import { CreateItineraryDto } from '../dto/create-itinerary.dto';
+import {
+  EItinerarySortField,
+  SearchItinerariesDto,
+} from '../dto/search-itineraries.dto';
 import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
 import {
   EItineraryMemberRole,
   IItineraryResponse,
 } from '../types/itineraries.types';
 
-interface RawItineraryResult {
+interface IRawItineraryResult {
   id: number;
   title: string;
   description: string;
   start_date: string;
   end_date: string;
+  created_at: string;
+  updated_at: string;
   destinations: string[];
 }
 
-interface RawMemberResult {
+interface IRawMemberResult {
   member_id: number;
   role: string | number;
   user_id: number;
@@ -31,7 +37,7 @@ interface RawMemberResult {
   avatar: string | null;
 }
 
-interface RawFullItineraryResult extends RawItineraryResult {
+interface IRawFullItineraryResult extends IRawItineraryResult {
   member_id: number;
   role: string | number;
   user_id: number;
@@ -53,7 +59,7 @@ export class ItinerariesService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const itineraryResult: RawItineraryResult[] = await queryRunner.query(
+      const itineraryResult: IRawItineraryResult[] = await queryRunner.query(
         `INSERT INTO itineraries (title, description, start_date, end_date, destinations)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
@@ -75,7 +81,7 @@ export class ItinerariesService {
       );
       const memberId = memberResult[0].id;
 
-      const ownerResult: RawMemberResult[] = await queryRunner.query(
+      const ownerResult: IRawMemberResult[] = await queryRunner.query(
         `
           SELECT 
             im.id as member_id,
@@ -115,9 +121,14 @@ export class ItinerariesService {
     }
   }
 
-  async findAll(): Promise<IItineraryResponse[]> {
-    const results = await this.dataSource.query<RawFullItineraryResult[]>(
-      `
+  async findAll(
+    searchDto: SearchItinerariesDto,
+  ): Promise<IItineraryResponse[]> {
+    const { query, sortField, sortOrder } = searchDto;
+
+    const orderByQuery = this.constructSortingQuery(sortField, sortOrder);
+
+    let sqlQuery = `
       SELECT 
         i.*,
         im.id as member_id,
@@ -129,15 +140,27 @@ export class ItinerariesService {
       FROM itineraries i
       LEFT JOIN itinerary_members im ON im.itinerary_id = i.id AND im.role = $1
       LEFT JOIN users u ON u.id = im.user_id
-    `,
-      [EItineraryMemberRole.OWNER],
+    `;
+
+    const params: (string | number)[] = [EItineraryMemberRole.OWNER];
+
+    if (query) {
+      sqlQuery += ` WHERE i.title ILIKE $2`;
+      params.push(`%${query}%`);
+    }
+
+    sqlQuery += ` ${orderByQuery}`;
+
+    const results = await this.dataSource.query<IRawFullItineraryResult[]>(
+      sqlQuery,
+      params,
     );
 
     return results.map(this.mapToResponse);
   }
 
   async findOne(id: number): Promise<IItineraryResponse> {
-    const results = await this.dataSource.query<RawFullItineraryResult[]>(
+    const results = await this.dataSource.query<IRawFullItineraryResult[]>(
       `
       SELECT 
         i.*,
@@ -192,7 +215,7 @@ export class ItinerariesService {
     }
 
     values.push(id);
-    await this.dataSource.query<RawItineraryResult[]>(
+    await this.dataSource.query<IRawItineraryResult[]>(
       `UPDATE itineraries 
        SET ${updates.join(', ')}
        WHERE id = $${paramCount}`,
@@ -207,7 +230,7 @@ export class ItinerariesService {
     return { success: true };
   }
 
-  private mapToResponse(result: RawFullItineraryResult): IItineraryResponse {
+  private mapToResponse(result: IRawFullItineraryResult): IItineraryResponse {
     return {
       id: result.id,
       title: result.title,
@@ -215,6 +238,8 @@ export class ItinerariesService {
       start_date: result.start_date,
       end_date: result.end_date,
       destinations: result.destinations,
+      created_at: result.created_at,
+      updated_at: result.updated_at,
       owner: {
         id: result.member_id,
         user_id: result.user_id,
@@ -226,6 +251,27 @@ export class ItinerariesService {
         },
       },
     };
+  }
+
+  private constructSortingQuery(sortField: string, sortOrder: string) {
+    const defaultSort = 'i.created_at';
+    const defaultOrder = 'DESC';
+
+    let orderByQuery = `ORDER BY ${defaultSort} ${defaultOrder}`;
+    if (sortField && sortOrder) {
+      const validFields = {
+        [EItinerarySortField.CREATED_AT]: 'i.created_at',
+        [EItinerarySortField.START_DATE]: 'i.start_date',
+        [EItinerarySortField.END_DATE]: 'i.end_date',
+        [EItinerarySortField.TITLE]: 'i.title',
+      };
+      const dbField = validFields[sortField];
+      if (dbField) {
+        orderByQuery = `ORDER BY ${dbField} ${sortOrder}`;
+      }
+    }
+
+    return orderByQuery;
   }
 }
 

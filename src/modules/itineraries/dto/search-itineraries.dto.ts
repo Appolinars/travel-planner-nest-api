@@ -1,4 +1,5 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { ESortOrder } from 'src/shared/types/filters.types';
 
 export enum EItinerarySortField {
@@ -8,7 +9,7 @@ export enum EItinerarySortField {
   TITLE = 'title',
 }
 
-export class SearchItinerariesDto {
+export class SearchItinerariesDto extends PaginationDto {
   @IsOptional()
   @IsString()
   query?: string;

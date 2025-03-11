@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from 'src/modules/users/entities/user.entity';
+import { IPaginatedResponse } from 'src/shared/types/filters.types';
 import { DataSource } from 'typeorm';
 
 import { CreateItineraryDto } from '../dto/create-itinerary.dto';
@@ -123,8 +124,9 @@ export class ItinerariesService {
 
   async findAll(
     searchDto: SearchItinerariesDto,
-  ): Promise<IItineraryResponse[]> {
-    const { query, sortField, sortOrder, destination } = searchDto;
+  ): Promise<IPaginatedResponse<IItineraryResponse[]>> {
+    const { query, sortField, sortOrder, destination, page, size, offset } =
+      searchDto;
 
     const orderByQuery = this.constructSortingQuery(sortField, sortOrder);
 
@@ -159,14 +161,31 @@ export class ItinerariesService {
       sqlQuery += ` WHERE ${whereClauses.join(' AND ')}`;
     }
 
+    const countQuery = `SELECT COUNT(*) as total FROM (${sqlQuery}) as subquery`;
+    const [{ total }] = await this.dataSource.query<{ total: string }[]>(
+      countQuery,
+      params,
+    );
+    const totalItems = parseInt(total, 10);
+
     sqlQuery += ` ${orderByQuery}`;
+    sqlQuery += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+
+    params.push(size, offset);
 
     const results = await this.dataSource.query<IRawFullItineraryResult[]>(
       sqlQuery,
       params,
     );
 
-    return results.map(this.mapToResponse);
+    const transformedItineraries = results.map(this.mapToResponse);
+
+    return {
+      data: transformedItineraries,
+      total: totalItems,
+      page: page || 1,
+      size: size || 20,
+    };
   }
 
   async findOne(id: number): Promise<IItineraryResponse> {

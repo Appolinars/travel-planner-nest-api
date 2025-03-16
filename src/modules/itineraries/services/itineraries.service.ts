@@ -16,36 +16,11 @@ import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
 import {
   EItineraryMemberRole,
   IItineraryResponse,
+  IRawFullItineraryResult,
+  IRawItineraryResult,
+  IRawOwner,
 } from '../types/itineraries.types';
-
-interface IRawItineraryResult {
-  id: number;
-  title: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  created_at: string;
-  updated_at: string;
-  destinations: string[];
-}
-
-interface IRawMemberResult {
-  member_id: number;
-  role: string | number;
-  user_id: number;
-  username: string;
-  email: string;
-  avatar: string | null;
-}
-
-interface IRawFullItineraryResult extends IRawItineraryResult {
-  member_id: number;
-  role: string | number;
-  user_id: number;
-  username: string;
-  email: string;
-  avatar: string | null;
-}
+import { ItineraryQueryBuilder } from './itinerary-query-builder';
 
 @Injectable()
 export class ItinerariesService {
@@ -78,11 +53,11 @@ export class ItinerariesService {
         `INSERT INTO itinerary_members (itinerary_id, user_id, role)
          VALUES ($1, $2, $3)
          RETURNING id`,
-        [itinerary.id, user.id, EItineraryMemberRole.OWNER], // Use string value for enum
+        [itinerary.id, user.id, EItineraryMemberRole.OWNER],
       );
       const memberId = memberResult[0].id;
 
-      const ownerResult: IRawMemberResult[] = await queryRunner.query(
+      const ownerResult: IRawOwner[] = await queryRunner.query(
         `
           SELECT 
             im.id as member_id,
@@ -125,12 +100,7 @@ export class ItinerariesService {
   async findAll(
     searchDto: SearchItinerariesDto,
   ): Promise<IPaginatedResponse<IItineraryResponse[]>> {
-    const { query, sortField, sortOrder, destination, page, size, offset } =
-      searchDto;
-
-    const orderByQuery = this.constructSortingQuery(sortField, sortOrder);
-
-    let sqlQuery = `
+    const baseQuery = `
       SELECT 
         i.*,
         im.id as member_id,
@@ -140,52 +110,20 @@ export class ItinerariesService {
         u.email,
         u.avatar
       FROM itineraries i
-      LEFT JOIN itinerary_members im ON im.itinerary_id = i.id AND im.role = $1
-      LEFT JOIN users u ON u.id = im.user_id
+      INNER JOIN itinerary_members im ON im.itinerary_id = i.id
+      LEFT JOIN users u ON u.id = im.user_id AND im.role = $1
     `;
 
-    const params: (string | number)[] = [EItineraryMemberRole.OWNER];
-    const whereClauses: string[] = [];
-
-    if (query) {
-      whereClauses.push(`i.title ILIKE $${params.length + 1}`);
-      params.push(`%${query}%`);
-    }
-
-    if (destination) {
-      whereClauses.push(`$${params.length + 1} = ANY(i.destinations)`);
-      params.push(destination);
-    }
-
-    if (whereClauses.length > 0) {
-      sqlQuery += ` WHERE ${whereClauses.join(' AND ')}`;
-    }
-
-    const countQuery = `SELECT COUNT(*) as total FROM (${sqlQuery}) as subquery`;
-    const [{ total }] = await this.dataSource.query<{ total: string }[]>(
-      countQuery,
-      params,
-    );
-    const totalItems = parseInt(total, 10);
-
-    sqlQuery += ` ${orderByQuery}`;
-    sqlQuery += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-
-    params.push(size, offset);
-
-    const results = await this.dataSource.query<IRawFullItineraryResult[]>(
-      sqlQuery,
-      params,
+    const queryBuilder = new ItineraryQueryBuilder(
+      this.dataSource,
+      {
+        baseQuery,
+        initialParams: [EItineraryMemberRole.OWNER],
+      },
+      searchDto,
     );
 
-    const transformedItineraries = results.map(this.mapToResponse);
-
-    return {
-      data: transformedItineraries,
-      total: totalItems,
-      page: page || 1,
-      size: size || 20,
-    };
+    return queryBuilder.execute();
   }
 
   async findOne(id: number): Promise<IItineraryResponse> {

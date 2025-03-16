@@ -3,6 +3,15 @@ export enum EItineraryMemberRole {
   MEMBER = 2,
 }
 
+export interface IRawOwner {
+  member_id: number;
+  role: string | number;
+  user_id: number;
+  username: string;
+  email: string;
+  avatar: string | null;
+}
+
 export interface IItineraryResponseOwner {
   id: number;
   user_id: number;
@@ -33,4 +42,24 @@ export interface IRawMember {
   user_username?: string;
   user_email?: string;
   user_avatar?: string | null;
+}
+
+export interface IRawItineraryResult {
+  id: number;
+  title: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  updated_at: string;
+  destinations: string[];
+}
+
+export interface IRawFullItineraryResult extends IRawItineraryResult {
+  member_id: number;
+  role: string | number;
+  user_id: number;
+  username: string;
+  email: string;
+  avatar: string | null;
 }

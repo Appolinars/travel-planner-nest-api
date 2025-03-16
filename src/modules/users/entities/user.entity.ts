@@ -1,5 +1,6 @@
+import { FavoriteItinerary } from 'src/modules/itineraries/entities/favorite-itinerary.entity';
 import { EAuthProvider } from 'src/shared/types/auth.types';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -24,4 +25,7 @@ export class User {
     default: EAuthProvider.DEFAULT,
   })
   provider: EAuthProvider;
+
+  @OneToMany(() => FavoriteItinerary, (favorite) => favorite.user)
+  favorites: FavoriteItinerary[];
 }

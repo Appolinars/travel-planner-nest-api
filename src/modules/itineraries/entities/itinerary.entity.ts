@@ -9,6 +9,7 @@ import {
 
 import { Activity } from './activity.entity';
 import { Expense } from './expense.entity';
+import { FavoriteItinerary } from './favorite-itinerary.entity';
 import { ItineraryMember } from './itinerary-member.entity';
 
 @Entity('itineraries')
@@ -51,4 +52,7 @@ export class Itinerary {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => FavoriteItinerary, (favorite) => favorite.itinerary)
+  favorites: FavoriteItinerary[];
 }

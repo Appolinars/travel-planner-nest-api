@@ -1,3 +1,5 @@
+import { createKeyv } from '@keyv/redis';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -39,6 +41,17 @@ import { UsersModule } from './modules/users/users.module';
         uri: configService.get('MONGO_URI'),
         dbName: configService.get('MONGO_DB_NAME'),
       }),
+      inject: [ConfigService],
+    }),
+    CacheModule.registerAsync({
+      useFactory: async (configService: ConfigService<IAppConfig>) => ({
+        stores: [
+          createKeyv({
+            url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
+          }),
+        ],
+      }),
+      isGlobal: true,
       inject: [ConfigService],
     }),
     UsersModule,

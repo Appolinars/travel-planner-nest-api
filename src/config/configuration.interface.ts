@@ -8,6 +8,8 @@ export interface IAppConfig {
   PG_DB_PASSWORD: string;
   MONGO_URI: string;
   MONGO_DB_NAME: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
   JWT_ACCESS_SECRET: string;
   JWT_ACCESS_EXPIRATION_TIME_MS: number;
   JWT_REFRESH_SECRET: string;

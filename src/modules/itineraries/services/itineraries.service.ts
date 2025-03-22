@@ -1,8 +1,11 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { User } from 'src/modules/users/entities/user.entity';
 import { IPaginatedResponse } from 'src/shared/types/filters.types';
 import { DataSource } from 'typeorm';
@@ -24,12 +27,24 @@ import { ItineraryQueryBuilder } from './itinerary-query-builder';
 
 @Injectable()
 export class ItinerariesService {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    private dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   async create(
     createItineraryDto: CreateItineraryDto,
     user: User,
   ): Promise<IItineraryResponse> {
+    // caching example
+    // await this.cacheManager.set(
+    //   'test-key',
+    //   { prop: 123, obj: { a: false, b: 2, c: '123' } },
+    //   60000,
+    // );
+    // const value = await this.cacheManager.get('test-key');
+    // console.log({ value });
+
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();

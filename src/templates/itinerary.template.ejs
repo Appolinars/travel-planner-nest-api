@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= data.itinerary.title %> - Itinerary</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 40px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .header, .section {
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 24px;
+      text-decoration: underline;
+      margin: 0 0 20px;
+    }
+    .date {
+      font-size: 14px;
+      color: #666;
+    }
+    .section h2 {
+      font-size: 20px;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .details p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><%= data.itinerary.title %></h1>
+    <div class="date">
+      <%= new Date(data.itinerary.start_date).toLocaleDateString() %> - 
+      <%= new Date(data.itinerary.end_date).toLocaleDateString() %>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Itinerary Details</h2>
+    <div class="details">
+      <p><strong>Description:</strong> <%= data.itinerary.description %></p>
+      <p><strong>Destinations:</strong> <%= data.itinerary.destinations.join(', ') %></p>
+      <p><strong>Owner:</strong> <%= data.itinerary.owner.user.username %> (<%= data.itinerary.owner.user.email %>)</p>
+      <p><strong>Created:</strong> <%= new Date(data.itinerary.created_at).toLocaleDateString() %></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Activities</h2>
+     <% if (data.activities && data.activities.length) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Start date</th>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% data.activities.forEach(activity => { %>
+            <tr>
+              <td><%= new Date(activity.date).toLocaleDateString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit',  year: '2-digit', month: '2-digit', day: '2-digit'}) %></td>
+              <td><%= activity.title %></td>
+              <td><%= activity.location %></td>
+              <td><%= activity.description %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } else { %>
+        <p>No activities data available.</p>
+      <% } %>
+  </div>
+
+  <div class="section">
+    <h2>Expenses</h2>
+     <% if (data.expenses && data.expenses.length) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% data.expenses.forEach(expense => { %>
+            <tr>
+              <td><%= expense.title %></td>
+              <td><%= expense.amount.toFixed(2) %></td>
+              <td><%= expense.currency %></td>
+              <td><%= expense.notes || '-' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } else { %>
+        <p>No expenses data available.</p>
+      <% } %>
+  </div>
+</body>
+</html>

@@ -11,8 +11,8 @@ import config from './config/configuration';
 import { IAppConfig } from './config/configuration.interface';
 import { AuthModule } from './modules/auth/auth.module';
 import { ItinerariesModule } from './modules/itineraries/itineraries.module';
+import { PdfModule } from './modules/pdf/pdf.module';
 import { UsersModule } from './modules/users/users.module';
-import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [

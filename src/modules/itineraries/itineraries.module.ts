@@ -41,5 +41,6 @@ import { ItineraryMembersService } from './services/itinerary-members.service';
     ExpensesService,
     FavoritesService,
   ],
+  exports: [ItinerariesService, ActivitiesService, ExpensesService],
 })
 export class ItinerariesModule {}

@@ -1,15 +1,94 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { render } from 'ejs';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { launch } from 'puppeteer';
-// import * as ejs from 'ejs';
-// import * as fs from 'fs';
-// import * as path from 'path';
-// import * as puppeteer from 'puppeteer';
+
+import { Expense } from '../itineraries/entities/expense.entity';
+import { ActivitiesService } from '../itineraries/services/activities.service';
+import { ExpensesService } from '../itineraries/services/expenses.service';
+import { ItinerariesService } from '../itineraries/services/itineraries.service';
+import {
+  IActivityResponse,
+  IItineraryResponse,
+} from '../itineraries/types/itineraries.types';
+
+interface IItineraryPdfPayload {
+  itinerary: IItineraryResponse;
+  activities: IActivityResponse[];
+  expenses: Expense[];
+}
 
 @Injectable()
 export class PdfService {
+  constructor(
+    @Inject() private readonly itinerariesService: ItinerariesService,
+    @Inject() private readonly activitiesService: ActivitiesService,
+    @Inject() private readonly expensesService: ExpensesService,
+  ) {}
+
+  async generateItinerary(itinerary_id: number) {
+    const htmlContent = await this.getItineraryHtmlPreview(itinerary_id);
+    const browser = await launch({
+      headless: 'shell',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--font-render-hinting=none',
+      ],
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+    });
+
+    await browser.close();
+    const pdfFileName = `itinerary-${itinerary_id}-${Date.now()}.pdf`;
+    const pdfFilePath = resolve(process.cwd(), 'pdfs', pdfFileName);
+    writeFileSync(pdfFilePath, pdfBuffer);
+    return `http://localhost:5000/pdfs/${pdfFileName}`;
+  }
+
+  async getItineraryHtmlPreview(itinerary_id: number) {
+    const itineraryData = await this.prepareItineraryData(itinerary_id);
+
+    const templatePath = resolve(
+      process.cwd(),
+      'src/templates',
+      'itinerary.template.ejs',
+    );
+
+    if (!existsSync(templatePath)) {
+      throw new Error(`Template file '${templatePath}' not found.`);
+    }
+
+    const template = readFileSync(templatePath, 'utf-8');
+
+    const htmlContent = render(template, { data: itineraryData });
+    return htmlContent;
+  }
+
+  private async prepareItineraryData(itinerary_id: number) {
+    const itinerary = await this.itinerariesService.findOne(itinerary_id);
+    const activities =
+      await this.activitiesService.findByItineraryId(itinerary_id);
+    const expenses = await this.expensesService.findByItineraryId(itinerary_id);
+
+    const payload: IItineraryPdfPayload = {
+      itinerary,
+      activities,
+      expenses,
+    };
+
+    return payload;
+  }
+
+  /* TEST */
+
   async testHtmlToPdf(data: any) {
     const htmlContent = this.testGetPreviewHtml(data);
     const browser = await launch({

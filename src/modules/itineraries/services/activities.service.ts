@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { Activity } from '../entities/activity.entity';
+import { IActivityResponse } from '../types/itineraries.types';
 
 @Injectable()
 export class ActivitiesService {
@@ -27,7 +28,7 @@ export class ActivitiesService {
       payload.location,
     ];
 
-    const result: Activity[] = await this.activitiesRepository.query(
+    const result: IActivityResponse[] = await this.activitiesRepository.query(
       query,
       values,
     );
@@ -41,9 +42,11 @@ export class ActivitiesService {
       WHERE itinerary_id = $1
     `;
 
-    const result: Activity = await this.activitiesRepository.query(query, [
-      itinerary_id,
-    ]);
+    const result: IActivityResponse[] = await this.activitiesRepository.query(
+      query,
+      [itinerary_id],
+    );
+
     return result;
   }
 

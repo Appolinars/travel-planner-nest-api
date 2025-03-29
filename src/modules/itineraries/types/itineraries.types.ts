@@ -63,3 +63,11 @@ export interface IRawFullItineraryResult extends IRawItineraryResult {
   email: string;
   avatar: string | null;
 }
+
+export interface IActivityResponse {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+}

@@ -12,6 +12,7 @@ import { IAppConfig } from './config/configuration.interface';
 import { AuthModule } from './modules/auth/auth.module';
 import { ItinerariesModule } from './modules/itineraries/itineraries.module';
 import { UsersModule } from './modules/users/users.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AuthModule,
     ItinerariesModule,
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],

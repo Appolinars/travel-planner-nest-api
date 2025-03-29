@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NVIDIA Quarterly Financial Report</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 50px 0px;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0px 20px;
+      }
+      .header,
+      .section {
+        margin-top: 50px;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .section h2 {
+        font-size: 20px;
+        color: #333;
+      }
+      .date {
+        text-align: right;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th {
+        background-color: #4caf50;
+        color: white;
+        text-align: left;
+        padding: 8px;
+      }
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+      .rich-text {
+        margin: 20px 0;
+      }
+      .rich-text p {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>NVIDIA Quarterly Financial Report</h1>
+      <div class="date"><%= data.reportDate %></div>
+    </div>
+    <div class="section">
+      <h2>Executive Summary</h2>
+      <div class="rich-text">
+        <p><%= data.executiveSummary %></p>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Financial Summary</h2>
+      <p>
+        Our company's financial performance for this quarter has been robust,
+        with significant growth in various sectors.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Q1</th>
+            <th>Q2</th>
+            <th>Q3</th>
+            <th>Q4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Revenue</td>
+            <td><%= data.financialSummary.Q1.revenue %></td>
+            <td><%= data.financialSummary.Q2.revenue %></td>
+            <td><%= data.financialSummary.Q3.revenue %></td>
+            <td><%= data.financialSummary.Q4.revenue %></td>
+          </tr>
+          <tr>
+            <td>Expenses</td>
+            <td><%= data.financialSummary.Q1.expenses %></td>
+            <td><%= data.financialSummary.Q2.expenses %></td>
+            <td><%= data.financialSummary.Q3.expenses %></td>
+            <td><%= data.financialSummary.Q4.expenses %></td>
+          </tr>
+          <tr>
+            <td>Net Profit</td>
+            <td><%= data.financialSummary.Q1.netProfit %></td>
+            <td><%= data.financialSummary.Q2.netProfit %></td>
+            <td><%= data.financialSummary.Q3.netProfit %></td>
+            <td><%= data.financialSummary.Q4.netProfit %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>New Products</h2>
+      <p>
+        NVIDIA AI Enterprise is an end-to-end, secure, and cloud-native AI
+        software platform that accelerates the data science pipeline and
+        streamlines the development and deployment of production AI.Available in
+        the cloud, data center, and at the edge, NVIDIA AI Enterprise provides
+        businesses with a smooth transition to AI—from pilot to production—that
+        offers security, support, manageability, and stability.
+      </p>
+      <table>
+        <tr>
+          <th>Quarter</th>
+          <th>New Products</th>
+        </tr>
+        <tbody>
+          <tr>
+            <td>Q1</td>
+            <td><%= data.newProducts.Q1.join(', ') %></td>
+          </tr>
+          <tr>
+            <td>Q2</td>
+            <td><%= data.newProducts.Q2.join(', ') %></td>
+          </tr>
+          <tr>
+            <td>Q3</td>
+            <td><%= data.newProducts.Q3.join(', ') %></td>
+          </tr>
+          <tr>
+            <td>Q4</td>
+            <td><%= data.newProducts.Q4.join(', ') %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Market Trends</h2>
+      <div class="rich-text">
+        <p><%= data.marketTrends %></p>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Research and Development</h2>
+      <div class="rich-text">
+        <p><%= data.researchAndDevelopment %></p>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Strategic Initiatives</h2>
+      <div class="rich-text">
+        <p><%= data.strategicInitiatives %></p>
+      </div>
+    </div>
+    <div class="section" style="page-break-before: always">
+      <h2>Conclusion</h2>
+      <div class="rich-text">
+        <p><%- data.conclusion %></p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { render } from 'ejs';
+import { Response } from 'express';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { launch } from 'puppeteer';
@@ -27,7 +28,7 @@ export class PdfService {
     @Inject() private readonly expensesService: ExpensesService,
   ) {}
 
-  async generateItinerary(itinerary_id: number) {
+  async generateItinerary(itinerary_id: number, res: Response) {
     const htmlContent = await this.getItineraryHtmlPreview(itinerary_id);
     const browser = await launch({
       headless: 'shell',
@@ -47,10 +48,16 @@ export class PdfService {
     });
 
     await browser.close();
-    const pdfFileName = `itinerary-${itinerary_id}-${Date.now()}.pdf`;
-    const pdfFilePath = resolve(process.cwd(), 'pdfs', pdfFileName);
-    writeFileSync(pdfFilePath, pdfBuffer);
-    return `http://localhost:5000/pdfs/${pdfFileName}`;
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="itinerary-${itinerary_id}.pdf"`,
+      'Content-Length': pdfBuffer.length,
+    });
+    res.end(pdfBuffer);
+    // const pdfFileName = `itinerary-${itinerary_id}-${Date.now()}.pdf`;
+    // const pdfFilePath = resolve(process.cwd(), 'pdfs', pdfFileName);
+    // writeFileSync(pdfFilePath, pdfBuffer);
+    // return `http://localhost:5000/pdfs/${pdfFileName}`;
   }
 
   async getItineraryHtmlPreview(itinerary_id: number) {

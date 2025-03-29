@@ -1,4 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Response } from 'express';
 
 import { pdfMockData } from './mocks/pdf-example.mock';
 import { PdfService } from './pdf.service';
@@ -8,9 +9,13 @@ export class PdfController {
   constructor(private readonly pdfService: PdfService) {}
 
   @Get('/itinerary/:id')
-  async generateItineraryPdf(@Param('id') id: string) {
-    const pdfUrl = await this.pdfService.generateItinerary(+id);
-    return { url: pdfUrl };
+  async generateItineraryPdf(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    await this.pdfService.generateItinerary(+id, response);
+    // const pdfUrl = await this.pdfService.generateItinerary(+id, response);
+    // return { url: pdfUrl };
   }
 
   @Get('/itinerary-preview/:id')

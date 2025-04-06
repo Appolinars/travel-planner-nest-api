@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@keyv/redis": "^4.3.2",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.3.0",
@@ -44,6 +45,7 @@
     "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
     "mongoose": "^8.9.4",
+    "nodemailer": "^6.10.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -66,6 +68,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
+    "@types/nodemailer": "^6.4.17",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",

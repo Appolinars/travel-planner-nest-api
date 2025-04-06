@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -45,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
       inject: [ConfigService],
     }),
     CacheModule.registerAsync({
+      imports: [ConfigModule],
       useFactory: async (configService: ConfigService<IAppConfig>) => ({
         stores: [
           createKeyv({
@@ -53,6 +55,20 @@ import { UsersModule } from './modules/users/users.module';
         ],
       }),
       isGlobal: true,
+      inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService<IAppConfig>) => ({
+        transport: {
+          host: configService.get('EMAIL_HOST'),
+          port: configService.get('EMAIL_PORT'),
+          auth: {
+            user: configService.get('EMAIL_USERNAME'),
+            pass: configService.get('EMAIL_PASSWORD'),
+          },
+        },
+      }),
       inject: [ConfigService],
     }),
     UsersModule,

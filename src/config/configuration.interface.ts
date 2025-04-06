@@ -16,4 +16,9 @@ export interface IAppConfig {
   JWT_REFRESH_EXPIRATION_TIME_MS: number;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  EMAIL_HOST: string;
+  EMAIL_PORT: number;
+  EMAIL_USERNAME: string;
+  EMAIL_PASSWORD: string;
+  RESEND_API_KEY: string;
 }

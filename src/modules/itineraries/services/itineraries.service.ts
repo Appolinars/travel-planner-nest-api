@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
 import { Cache } from 'cache-manager';
 import { User } from 'src/modules/users/entities/user.entity';
 import { IPaginatedResponse } from 'src/shared/types/filters.types';
@@ -30,6 +31,7 @@ export class ItinerariesService {
   constructor(
     private dataSource: DataSource,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly mailerService: MailerService,
   ) {}
 
   async create(
@@ -115,6 +117,13 @@ export class ItinerariesService {
   async findAll(
     searchDto: SearchItinerariesDto,
   ): Promise<IPaginatedResponse<IItineraryResponse[]>> {
+    // const respo = await this.mailerService.sendMail({
+    //   from: 'Acme <vakulenko.maksim977@gmail.com>',
+    //   to: 'vakulenko.maksim977@gmail.com',
+    //   subject: 'hello world 333',
+    //   text: 'it works! 444',
+    // });
+
     const baseQuery = `
       SELECT 
         i.*,

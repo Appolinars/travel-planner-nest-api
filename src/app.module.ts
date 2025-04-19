@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 
@@ -71,6 +72,17 @@ import { UsersModule } from './modules/users/users.module';
       }),
       inject: [ConfigService],
     }),
+    // RabbitMQModule.forRoot({
+    //   exchanges: [
+    //     {
+    //       name: 'itinerary_notifications',
+    //       type: 'direct',
+    //     },
+    //   ],
+    //   uri: 'amqp://guest:guest@localhost:5672',
+    //   connectionInitOptions: { wait: false },
+    // }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     ItinerariesModule,

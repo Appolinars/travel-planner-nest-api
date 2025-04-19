@@ -1,4 +1,6 @@
+// import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ActivitiesController } from './controllers/activities.controller';
@@ -15,6 +17,7 @@ import { ActivitiesService } from './services/activities.service';
 import { ExpensesService } from './services/expenses.service';
 import { FavoritesService } from './services/favorite-itineraries.service';
 import { ItinerariesService } from './services/itineraries.service';
+import { ItinerariesCronService } from './services/itineraries-cron.service';
 import { ItineraryMembersService } from './services/itinerary-members.service';
 
 @Module({
@@ -26,6 +29,32 @@ import { ItineraryMembersService } from './services/itinerary-members.service';
       ItineraryMember,
       FavoriteItinerary,
     ]),
+    ClientsModule.register([
+      {
+        name: 'ITINERARY_NOTIFICATIONS_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://guest:guest@localhost:5672'],
+          queue: 'itineraries-notifications-queue',
+          // routingKey: 'email',
+          // exchange: 'itinerary_notifications',
+          queueOptions: {
+            durable: true,
+          },
+          prefetchCount: 1,
+        },
+      },
+    ]),
+    // RabbitMQModule.forRoot({
+    //   exchanges: [
+    //     {
+    //       name: 'itinerary_notifications',
+    //       type: 'direct',
+    //     },
+    //   ],
+    //   uri: 'amqp://guest:guest@localhost:5672',
+    //   connectionInitOptions: { wait: false },
+    // }),
   ],
   controllers: [
     ItinerariesController,
@@ -40,6 +69,7 @@ import { ItineraryMembersService } from './services/itinerary-members.service';
     ActivitiesService,
     ExpensesService,
     FavoritesService,
+    ItinerariesCronService,
   ],
   exports: [ItinerariesService, ActivitiesService, ExpensesService],
 })

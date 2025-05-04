@@ -1,4 +1,4 @@
-import { createKeyv } from '@keyv/redis';
+import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { CacheableMemory } from 'cacheable';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -53,6 +54,7 @@ import { UsersModule } from './modules/users/users.module';
           createKeyv({
             url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
           }),
+          new Keyv({ store: new CacheableMemory() }),
         ],
       }),
       isGlobal: true,

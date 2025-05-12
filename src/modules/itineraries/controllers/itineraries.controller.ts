@@ -35,8 +35,8 @@ export class ItinerariesController {
   }
 
   @Get()
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10000)
+  // @UseInterceptors(CacheInterceptor)
+  // @CacheTTL(10000)
   findAll(@Query() searchDto: SearchItinerariesDto) {
     return this.itinerariesService.findAll(searchDto);
   }

@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import config from './config/configuration';
 import { IAppConfig } from './config/configuration.interface';
+import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ItinerariesModule } from './modules/itineraries/itineraries.module';
 import { PdfModule } from './modules/pdf/pdf.module';
@@ -89,6 +90,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     ItinerariesModule,
     PdfModule,
+    AssistantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

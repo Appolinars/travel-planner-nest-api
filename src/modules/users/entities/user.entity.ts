@@ -1,3 +1,4 @@
+import { ItineraryConversation } from 'src/modules/assistant/entities/itinerary-conversation.entity';
 import { FavoriteItinerary } from 'src/modules/itineraries/entities/favorite-itinerary.entity';
 import { EAuthProvider } from 'src/shared/types/auth.types';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
@@ -28,4 +29,7 @@ export class User {
 
   @OneToMany(() => FavoriteItinerary, (favorite) => favorite.user)
   favorites: FavoriteItinerary[];
+
+  @OneToMany(() => ItineraryConversation, (conversation) => conversation.user)
+  itinerary_conversations: ItineraryConversation[];
 }

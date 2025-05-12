@@ -21,4 +21,5 @@ export interface IAppConfig {
   EMAIL_USERNAME: string;
   EMAIL_PASSWORD: string;
   RESEND_API_KEY: string;
+  OPENAI_API_KEY: string;
 }

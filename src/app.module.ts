@@ -16,6 +16,7 @@ import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ItinerariesModule } from './modules/itineraries/itineraries.module';
 import { PdfModule } from './modules/pdf/pdf.module';
+import { TwitterModule } from './modules/twitter/twitter.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -91,6 +92,7 @@ import { UsersModule } from './modules/users/users.module';
     ItinerariesModule,
     PdfModule,
     AssistantModule,
+    TwitterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

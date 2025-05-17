@@ -1,6 +1,6 @@
 import { ItineraryConversation } from 'src/modules/assistant/entities/itinerary-conversation.entity';
 import { FavoriteItinerary } from 'src/modules/itineraries/entities/favorite-itinerary.entity';
-import { EAuthProvider } from 'src/shared/types/auth.types';
+import { EAuthProvider, EUserRole } from 'src/shared/types/auth.types';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
@@ -19,6 +19,13 @@ export class User {
 
   @Column({ type: 'varchar', length: 200, nullable: true, select: false })
   password: string;
+
+  @Column({
+    type: 'enum',
+    enum: EUserRole,
+    default: EUserRole.USER,
+  })
+  role: EUserRole;
 
   @Column({
     type: 'enum',

@@ -22,4 +22,8 @@ export interface IAppConfig {
   EMAIL_PASSWORD: string;
   RESEND_API_KEY: string;
   OPENAI_API_KEY: string;
+  TWITTER_API_KEY: string;
+  TWITTER_API_SECRET: string;
+  TWITTER_ACCESS_TOKEN: string;
+  TWITTER_ACCESS_SECRET: string;
 }

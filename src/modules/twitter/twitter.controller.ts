@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TwitterService } from './twitter.service';
@@ -17,6 +25,12 @@ export class TwitterController {
   @Post('tweet')
   async tweet(@Body('text') text: string) {
     const tweetId = await this.twitter.postTweet(text);
+    return { success: true, tweetId };
+  }
+
+  @Post('tweet-itinerary/:itineraryId')
+  async tweetItinerary(@Param('itineraryId') itineraryId: string) {
+    const tweetId = await this.twitter.postItineraryTweet(+itineraryId);
     return { success: true, tweetId };
   }
 }

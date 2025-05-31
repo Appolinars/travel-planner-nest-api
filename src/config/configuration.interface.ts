@@ -26,4 +26,6 @@ export interface IAppConfig {
   TWITTER_API_SECRET: string;
   TWITTER_ACCESS_TOKEN: string;
   TWITTER_ACCESS_SECRET: string;
+  RABBITMQ_HOST: string;
+  RABBITMQ_PORT: number;
 }

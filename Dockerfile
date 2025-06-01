@@ -1,39 +1,33 @@
-###############
-# 1) Builder
-###############
+##############
+# BUILDER
+##############
 FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
 
-# Skip puppeteer’s built-in Chrome download
-ENV PUPPETEER_SKIP_DOWNLOAD=true
-
-# 1a) Install dependencies exactly
+# 1) Copy package manifests and install everything (incl. @nestjs/cli)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
-# 1b) Copy code and build
+# 2) Copy source and compile
 COPY . .
 RUN npm run build
 
 
-###############
-# 2) Runner
-###############
+##############
+# RUNNER
+##############
 FROM node:20-alpine AS runner
 WORKDIR /usr/src/app
 
-# Install system Chrome so Puppeteer can run headlessly
-RUN apk add --no-cache chromium
-
-# Copy compiled output & lockfile
+# 3) Copy only built output + package.json
 COPY --from=builder /usr/src/app/dist ./dist
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --omit=dev
+# 4) Install production‐only deps (no devDeps)
+RUN npm install --production
 
-# Tell Puppeteer where Chrome lives
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# 5) Expose the port your app actually uses
+EXPOSE 5000
 
-EXPOSE 3000
+# 6) Start the compiled app
 CMD ["node", "dist/main.js"]

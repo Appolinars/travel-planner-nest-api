@@ -3,8 +3,9 @@ import { render } from 'ejs';
 import { Response } from 'express';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
-import { launch } from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
+// import { launch } from 'puppeteer';
 import { Expense } from '../itineraries/entities/expense.entity';
 import { ActivitiesService } from '../itineraries/services/activities.service';
 import { ExpensesService } from '../itineraries/services/expenses.service';
@@ -30,14 +31,18 @@ export class PdfService {
 
   async generateItinerary(itinerary_id: number, res: Response) {
     const htmlContent = await this.getItineraryHtmlPreview(itinerary_id);
-    const browser = await launch({
-      headless: 'shell',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--font-render-hinting=none',
-      ],
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `wss://production-sfo.browserless.io?token=2SQ9b7qHDBjbve540c189a243528896b2a546c82b34bace34`,
     });
+
+    // const browser = await launch({
+    //   headless: 'shell',
+    //   args: [
+    //     '--no-sandbox',
+    //     '--disable-setuid-sandbox',
+    //     '--font-render-hinting=none',
+    //   ],
+    // });
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
@@ -98,14 +103,17 @@ export class PdfService {
 
   async testHtmlToPdf(data: any) {
     const htmlContent = this.testGetPreviewHtml(data);
-    const browser = await launch({
-      headless: 'shell',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--font-render-hinting=none',
-      ],
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `wss://production-sfo.browserless.io?token=2SQ9b7qHDBjbve540c189a243528896b2a546c82b34bace34`,
     });
+    // const browser = await launch({
+    //   headless: 'shell',
+    //   args: [
+    //     '--no-sandbox',
+    //     '--disable-setuid-sandbox',
+    //     '--font-render-hinting=none',
+    //   ],
+    // });
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });

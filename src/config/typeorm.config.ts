@@ -9,8 +9,16 @@ const AppDataSource = new DataSource({
   username: process.env.PG_DB_USERNAME || 'postgres',
   password: process.env.PG_DB_PASSWORD || 'password',
   database: process.env.PG_DB_DATABASE || 'my_database',
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/database/migrations/*.ts'],
+  entities: [
+    process.env.NODE_ENV === 'production'
+      ? 'dist/**/*.entity.js'
+      : 'src/**/*.entity.ts',
+  ],
+  migrations: [
+    process.env.NODE_ENV === 'production'
+      ? 'dist/database/migrations/*.js'
+      : 'src/database/migrations/*.ts',
+  ],
   synchronize: false, // Always use migrations for schema changes
 });
 

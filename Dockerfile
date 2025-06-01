@@ -1,7 +1,7 @@
 ##############
 # BUILDER
 ##############
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
 
 # 1) Copy package manifests and install everything (incl. @nestjs/cli)
@@ -16,7 +16,7 @@ RUN npm run build
 ##############
 # RUNNER
 ##############
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /usr/src/app
 
 # 3) Copy only built output + package.json

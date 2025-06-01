@@ -1,31 +1,33 @@
-# Use an official lightweight Node.js image
+##############
+# BUILDER
+##############
 FROM node:18-alpine AS builder
-
-# Set working directory
 WORKDIR /usr/src/app
 
-# Install dependencies
+# 1) Copy package manifests and install everything (incl. @nestjs/cli)
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
-# Copy rest of the code
+# 2) Copy source and compile
 COPY . .
-
-# Build the NestJS application
 RUN npm run build
 
-# ----------- Production Stage ------------
-FROM node:18-alpine AS runner
 
+##############
+# RUNNER
+##############
+FROM node:18-alpine AS runner
 WORKDIR /usr/src/app
 
-# Copy only the compiled output and package*.json from builder
+# 3) Copy only built output + package.json
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package*.json ./
+COPY package*.json ./
 
-# Expose the port your NestJS listens on (e.g. 5000)
+# 4) Install production‐only deps (no devDeps)
+RUN npm install --production
+
+# 5) Expose the port your app actually uses
 EXPOSE 5000
 
-# Default command
+# 6) Start the compiled app
 CMD ["node", "dist/main.js"]

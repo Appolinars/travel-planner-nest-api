@@ -36,7 +36,7 @@ import { UsersModule } from './modules/users/users.module';
         database: configService.get('PG_DB_DATABASE'),
         synchronize: false,
         autoLoadEntities: true,
-        logging: true,
+        logging: configService.get('NODE_ENV') !== 'production',
         useUTC: true,
       }),
       inject: [ConfigService],

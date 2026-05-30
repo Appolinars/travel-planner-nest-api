@@ -30,7 +30,7 @@ import { UsersModule } from './modules/users/users.module';
       useFactory: (configService: ConfigService<IAppConfig>) => ({
         type: 'postgres',
         host: configService.get('PG_DB_HOST'),
-        port: +configService.get('PG_DB_PASSWORD'),
+        port: +configService.get('PG_DB_PORT'),
         username: configService.get('PG_DB_USERNAME'),
         password: configService.get('PG_DB_PASSWORD'),
         database: configService.get('PG_DB_DATABASE'),

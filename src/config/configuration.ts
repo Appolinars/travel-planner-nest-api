@@ -4,6 +4,8 @@ export default () => ({
   REDIS_PORT: Number(process.env.REDIS_PORT) || 6380,
   RABBITMQ_HOST: process.env.RABBITMQ_HOST || 'localhost',
   RABBITMQ_PORT: Number(process.env.RABBITMQ_PORT) || 5672,
+  RABBITMQ_USER: process.env.RABBITMQ_USER || 'guest',
+  RABBITMQ_PASSWORD: process.env.RABBITMQ_PASSWORD || 'guest',
   EMAIL_PORT: Number(process.env.EMAIL_PORT) || 2525,
   // JWT_ACCESS_EXPIRATION_TIME_MS: 10000,
   JWT_ACCESS_EXPIRATION_TIME_MS: 3600000,

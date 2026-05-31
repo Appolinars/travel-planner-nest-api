@@ -39,7 +39,7 @@ import { ItineraryMembersService } from './services/itinerary-members.service';
           transport: Transport.RMQ,
           options: {
             urls: [
-              `amqp://guest:guest@${configService.get('RABBITMQ_HOST')}:${configService.get('RABBITMQ_PORT')}`,
+              `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASSWORD')}@${configService.get('RABBITMQ_HOST')}:${configService.get('RABBITMQ_PORT')}`,
             ],
             queue: 'itineraries-notifications-queue',
             // routingKey: 'email',

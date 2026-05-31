@@ -28,4 +28,5 @@ export interface IAppConfig {
   TWITTER_ACCESS_SECRET: string;
   RABBITMQ_HOST: string;
   RABBITMQ_PORT: number;
+  BROWSERLESS_API_KEY: string;
 }

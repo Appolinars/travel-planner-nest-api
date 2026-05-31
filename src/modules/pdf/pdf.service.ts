@@ -1,9 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { render } from 'ejs';
 import { Response } from 'express';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import puppeteer from 'puppeteer-core';
+import { IAppConfig } from 'src/config/configuration.interface';
 
 // import { launch } from 'puppeteer';
 import { Expense } from '../itineraries/entities/expense.entity';
@@ -27,12 +29,15 @@ export class PdfService {
     @Inject() private readonly itinerariesService: ItinerariesService,
     @Inject() private readonly activitiesService: ActivitiesService,
     @Inject() private readonly expensesService: ExpensesService,
+    private configService: ConfigService<IAppConfig>,
   ) {}
 
   async generateItinerary(itinerary_id: number, res: Response) {
     const htmlContent = await this.getItineraryHtmlPreview(itinerary_id);
+    const browserlessApiKey = this.configService.get('BROWSERLESS_API_KEY');
+
     const browser = await puppeteer.connect({
-      browserWSEndpoint: `wss://production-sfo.browserless.io?token=2SQ9b7qHDBjbve540c189a243528896b2a546c82b34bace34`,
+      browserWSEndpoint: `wss://production-sfo.browserless.io?token=${browserlessApiKey}`,
     });
 
     // const browser = await launch({
@@ -45,14 +50,19 @@ export class PdfService {
     // });
 
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-    });
+    let pdfBuffer: Uint8Array;
+    try {
+      await page.setContent(htmlContent, { waitUntil: 'load' });
 
-    await browser.close();
+      pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+      });
+    } finally {
+      await browser.close();
+    }
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="itinerary-${itinerary_id}.pdf"`,

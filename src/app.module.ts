@@ -55,6 +55,11 @@ import { UsersModule } from './modules/users/users.module';
         stores: [
           createKeyv({
             url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
+            socket: {
+              connectTimeout: 5000,
+              reconnectStrategy: (retries) =>
+                retries > 5 ? new Error('Redis unavailable') : 200,
+            },
           }),
           new Keyv({ store: new CacheableMemory() }),
         ],

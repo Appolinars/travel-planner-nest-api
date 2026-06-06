@@ -29,9 +29,6 @@ COPY --from=builder /usr/src/app/dist ./dist
 # (see src/modules/pdf/pdf.service.ts), so they must ship in the image.
 COPY --from=builder /usr/src/app/src/templates ./src/templates
 
-# Static public assets
-COPY --from=builder /usr/src/app/public ./public
-
 EXPOSE 5000
 
 # Run pending DB migrations, then start the API.

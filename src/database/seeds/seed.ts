@@ -13,7 +13,6 @@ import { DataSource } from 'typeorm';
 import AppDataSource from '../../config/typeorm.config';
 import { Activity } from '../../modules/itineraries/entities/activity.entity';
 import { Expense } from '../../modules/itineraries/entities/expense.entity';
-import { FavoriteItinerary } from '../../modules/itineraries/entities/favorite-itinerary.entity';
 import { Itinerary } from '../../modules/itineraries/entities/itinerary.entity';
 import { ItineraryMember } from '../../modules/itineraries/entities/itinerary-member.entity';
 import { EItineraryMemberRole } from '../../modules/itineraries/types/itineraries.types';
@@ -152,9 +151,13 @@ async function createFavorite(
   user: User,
   itinerary: Itinerary,
 ): Promise<void> {
-  const favoriteRepository = dataSource.getRepository(FavoriteItinerary);
-  const favorite = favoriteRepository.create({ user, itinerary });
-  await favoriteRepository.save(favorite);
+  // favorite_itineraries uses a composite (user_id, itinerary_id) primary key
+  // whose columns double as relations, which trips up repository.create().
+  // Insert by id directly, exactly as FavoritesService does.
+  await dataSource.query(
+    `INSERT INTO favorite_itineraries (user_id, itinerary_id) VALUES ($1, $2)`,
+    [user.id, itinerary.id],
+  );
 }
 
 async function clearDemoData(dataSource: DataSource): Promise<void> {

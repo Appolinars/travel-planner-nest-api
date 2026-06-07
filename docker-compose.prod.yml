@@ -6,6 +6,17 @@
 #   docker compose -f docker-compose.prod.yml up -d
 #
 # GHCR_OWNER, image tags and all secrets come from the sibling .env file.
+#
+# CloudWatch Logs: the app services ship stdout to CloudWatch via the `awslogs`
+# Docker logging driver. This REQUIRES the EC2 instance to have an IAM role
+# granting logs:CreateLogGroup / CreateLogStream / PutLogEvents. Attach that
+# role BEFORE deploying this file, or the containers will fail to start.
+# Thanks to Docker's dual-logging cache, `docker compose logs` still works.
+
+# Shared awslogs options. Per-service blocks merge these and add awslogs-group.
+x-awslogs-options: &awslogs-options
+  awslogs-region: eu-north-1
+  awslogs-create-group: 'true'
 
 services:
   postgres:
@@ -62,6 +73,12 @@ services:
     image: ghcr.io/${GHCR_OWNER}/travel-planner-pet:latest
     restart: unless-stopped
     env_file: .env
+    logging:
+      driver: awslogs
+      options:
+        <<: *awslogs-options
+        awslogs-group: /travel-planner/main-api
+        awslogs-stream: main-api
     ports:
       - '5000:5000'
     volumes:
@@ -93,6 +110,12 @@ services:
     image: ghcr.io/${GHCR_OWNER}/travel-planner-mailing-microservice:latest
     restart: unless-stopped
     env_file: .env
+    logging:
+      driver: awslogs
+      options:
+        <<: *awslogs-options
+        awslogs-group: /travel-planner/mailing-service
+        awslogs-stream: mailing-service
     healthcheck:
       # No HTTP server in this consumer — verify the node process is alive.
       # (Catches a defunct/zombie process; a crashed PID 1 is handled by restart.)

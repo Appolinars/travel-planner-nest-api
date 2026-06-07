@@ -54,6 +54,20 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      # Sync the compose file so orchestration changes (logging, healthchecks,
+      # ports) ship on push. Git is the source of truth — don't hand-edit
+      # ~/app/docker-compose.prod.yml on the server, it gets overwritten here.
+      - name: Copy compose file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: ~/app
+
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
         with:

@@ -148,8 +148,11 @@ services:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot
-    # Reload every 6h to pick up renewed certs; run nginx in the foreground.
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+    # NOTE: the nginx image only runs its envsubst templating when the command
+    # starts with "nginx". Since we override the command (to reload every 6h for
+    # cert renewals), we must invoke the templating script ourselves first,
+    # otherwise our default.conf.template is never rendered.
+    command: '/bin/sh -c ''/docker-entrypoint.d/20-envsubst-on-templates.sh; (while :; do sleep 6h & wait $${!}; nginx -s reload; done &); exec nginx -g "daemon off;"'''
     depends_on:
       - main-api
     logging:

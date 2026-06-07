@@ -1,0 +1,36 @@
+# Travel Planner — nginx reverse proxy with TLS termination.
+# ${API_DOMAIN} is substituted at container start from the environment
+# (e.g. travel-planner.duckdns.org). Certs are issued by certbot via the
+# /.well-known/acme-challenge/ path below (HTTP-01 challenge).
+
+# Port 80: serve the ACME challenge, redirect everything else to HTTPS.
+server {
+    listen 80;
+    server_name ${API_DOMAIN};
+
+    # Let's Encrypt writes challenge files here; certbot shares this volume.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# Port 443: terminate TLS and proxy to the API container over app-net.
+server {
+    listen 443 ssl;
+    server_name ${API_DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${API_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${API_DOMAIN}/privkey.pem;
+
+    location / {
+        proxy_pass http://main-api:5000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

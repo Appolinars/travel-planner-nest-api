@@ -80,6 +80,8 @@ services:
         awslogs-group: /travel-planner/main-api
         awslogs-stream: main-api
     ports:
+      # Direct HTTP access kept during the HTTPS transition. Once Caddy/HTTPS
+      # is verified, remove this and the SG rule so the API is HTTPS-only.
       - '5000:5000'
     volumes:
       # Persist generated PDFs across restarts/redeploys.
@@ -130,11 +132,51 @@ services:
     networks:
       - app-net
 
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    # The official nginx image runs envsubst on files in /etc/nginx/templates at
+    # startup. NGINX_ENVSUBST_FILTER restricts substitution to API_DOMAIN only,
+    # so nginx's own runtime vars ($host, $remote_addr, ...) are left intact.
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+      NGINX_ENVSUBST_FILTER: API_DOMAIN
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot
+    # Reload every 6h to pick up renewed certs; run nginx in the foreground.
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+    depends_on:
+      - main-api
+    logging:
+      driver: awslogs
+      options:
+        <<: *awslogs-options
+        awslogs-group: /travel-planner/nginx
+        awslogs-stream: nginx
+    networks:
+      - app-net
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    # Attempt renewal twice a day; certbot only acts when a cert is near expiry.
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
 volumes:
   pgdata:
   redisdata:
   rabbitmqdata:
   pdfs:
+  certbot_certs:
+  certbot_www:
 
 networks:
   app-net:

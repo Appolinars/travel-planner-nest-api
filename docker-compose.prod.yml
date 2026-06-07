@@ -67,6 +67,18 @@ services:
     volumes:
       # Persist generated PDFs across restarts/redeploys.
       - pdfs:/usr/src/app/pdfs
+    healthcheck:
+      # Liveness only — see HealthController. Uses busybox wget (no curl in the
+      # node:20-alpine image). start_period covers boot-time DB migrations.
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:5000/api/health/live || exit 1',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,6 +93,14 @@ services:
     image: ghcr.io/${GHCR_OWNER}/travel-planner-mailing-microservice:latest
     restart: unless-stopped
     env_file: .env
+    healthcheck:
+      # No HTTP server in this consumer — verify the node process is alive.
+      # (Catches a defunct/zombie process; a crashed PID 1 is handled by restart.)
+      test: ['CMD-SHELL', 'pgrep -f "node dist/main" > /dev/null || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     depends_on:
       rabbitmq:
         condition: service_healthy

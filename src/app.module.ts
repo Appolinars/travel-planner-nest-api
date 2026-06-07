@@ -14,6 +14,7 @@ import config from './config/configuration';
 import { IAppConfig } from './config/configuration.interface';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
 import { ItinerariesModule } from './modules/itineraries/itineraries.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { TwitterModule } from './modules/twitter/twitter.module';
@@ -92,6 +93,7 @@ import { UsersModule } from './modules/users/users.module';
     //   connectionInitOptions: { wait: false },
     // }),
     ScheduleModule.forRoot(),
+    HealthModule,
     UsersModule,
     AuthModule,
     ItinerariesModule,

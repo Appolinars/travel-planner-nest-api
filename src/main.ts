@@ -4,12 +4,15 @@ import { ValidationError } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 import { static as expressStatic } from 'express';
 import { existsSync, mkdirSync } from 'fs';
+import { Logger } from 'nestjs-pino';
 import { join } from 'path';
 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // bufferLogs so early bootstrap logs are held until the pino logger is ready.
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
   app.setGlobalPrefix('/api');
   app.use(cookieParser());
   app.useGlobalPipes(

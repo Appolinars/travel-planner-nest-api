@@ -7,6 +7,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { CacheableMemory } from 'cacheable';
+import { randomUUID } from 'crypto';
+import { IncomingMessage, ServerResponse } from 'http';
+import { LoggerModule } from 'nestjs-pino';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -25,6 +28,34 @@ import { UsersModule } from './modules/users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+        // Reuse an inbound correlation id if a caller sent one, otherwise mint
+        // one. Echoing it back lets clients correlate their request too.
+        genReqId: (req: IncomingMessage, res: ServerResponse) => {
+          const header = req.headers['x-correlation-id'];
+          const id =
+            (Array.isArray(header) ? header[0] : header) ?? randomUUID();
+          res.setHeader('x-correlation-id', id);
+          return id;
+        },
+        // Surface the id as `correlationId` on every log line in the request,
+        // matching the field name the mailing service uses.
+        customProps: (req: IncomingMessage & { id?: string }) => ({
+          correlationId: req.id,
+        }),
+        redact: ['req.headers.authorization', 'req.headers.cookie'],
+        // Pretty, single-line logs locally; raw JSON in production.
+        transport:
+          process.env.NODE_ENV === 'production'
+            ? undefined
+            : {
+                target: 'pino-pretty',
+                options: { singleLine: true, translateTime: 'SYS:standard' },
+              },
+      },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

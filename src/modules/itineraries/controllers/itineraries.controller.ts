@@ -20,10 +20,21 @@ import { SearchItinerariesDto } from '../dto/search-itineraries.dto';
 import { UpdateItineraryDto } from '../dto/update-itinerary.dto';
 import { ItineraryOwnerGuard } from '../guards/itinerary-owner.guard';
 import { ItinerariesService } from '../services/itineraries.service';
+import { ItinerariesCronService } from '../services/itineraries-cron.service';
 
 @Controller('itineraries')
 export class ItinerariesController {
-  constructor(private readonly itinerariesService: ItinerariesService) {}
+  constructor(
+    private readonly itinerariesService: ItinerariesService,
+    private readonly itinerariesCronService: ItinerariesCronService,
+  ) {}
+
+  // manual trigger for the reminder cron, used for testing
+  @Post('_trigger-reminders')
+  async triggerReminders() {
+    await this.itinerariesCronService.checkItineraries();
+    return { triggered: true };
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)

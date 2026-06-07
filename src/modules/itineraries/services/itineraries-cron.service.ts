@@ -3,6 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 
 import { Itinerary } from '../entities/itinerary.entity';
@@ -15,6 +17,8 @@ export class ItinerariesCronService {
     // private readonly amqpConnection: AmqpConnection,
     @Inject('ITINERARY_NOTIFICATIONS_SERVICE')
     private rabbitClient: ClientProxy,
+    @InjectPinoLogger(ItinerariesCronService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_NOON)
@@ -33,13 +37,16 @@ export class ItinerariesCronService {
     for (const itinerary of itineraries) {
       for (const member of itinerary.members) {
         const user = member.user;
-        console.log(
-          'Send notification event for user',
-          user.username,
-          itinerary.id,
+        // One correlation id per published message — the mailing service logs
+        // the same id, so a reminder can be traced across both apps.
+        const correlationId = randomUUID();
+        this.logger.info(
+          { correlationId, userId: user.id, itineraryId: itinerary.id },
+          'Publishing itinerary reminder',
         );
         this.rabbitClient
           .emit('itinerary_start_reminder', {
+            correlationId,
             userId: user.id,
             email: 'vakulenko.maksim977@gmail.com',
             username: user.username,
